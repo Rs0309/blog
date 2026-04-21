@@ -15,6 +15,11 @@ function envOrDefault(name: string, fallback: string): string {
   return process.env[name] ?? fallback;
 }
 
+function optionalTrimmedEnv(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value ? value : undefined;
+}
+
 function resolveBootstrapTimestamp(delayMinutes: number): string {
   return new Date(Date.now() + delayMinutes * 60_000).toISOString().slice(0, 19);
 }
@@ -36,7 +41,7 @@ export class BlogAutomationStack extends Stack {
     const textModelId = envOrDefault("TEXT_MODEL_ID", "amazon.nova-lite-v1:0");
     const imageModelId = envOrDefault("IMAGE_MODEL_ID", "amazon.nova-canvas-v1:0");
     const bootstrapDelayMinutes = Number(envOrDefault("BOOTSTRAP_DELAY_MINUTES", "10"));
-    const explicitBootstrapAt = process.env.BOOTSTRAP_AT;
+    const explicitBootstrapAt = optionalTrimmedEnv("BOOTSTRAP_AT");
     const bootstrapAt = explicitBootstrapAt ?? resolveBootstrapTimestamp(bootstrapDelayMinutes);
     const dailyScheduleExpression = envOrDefault("DAILY_SCHEDULE_EXPRESSION", "cron(0 6 * * ? *)");
 
