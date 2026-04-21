@@ -1,0 +1,10 @@
+{
+  "app": "npx tsx infra/bin/blog-automation.ts",
+  "watch": {
+    "include": ["infra/**/*.ts", "src/**/*.ts"],
+    "exclude": ["README.md", "cdk*.json", "docs/**/*", "tests/**/*", "node_modules", "dist"]
+  },
+  "context": {
+    "@aws-cdk/aws-lambda-nodejs:useLatestRuntimeVersion": true
+  }
+}
