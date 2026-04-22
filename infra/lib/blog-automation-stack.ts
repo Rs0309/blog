@@ -223,6 +223,7 @@ export class BlogAutomationStack extends Stack {
 
     bootstrapFunction.addToRolePolicy(bedrockPolicy);
     dailyRotationFunction.addToRolePolicy(bedrockPolicy);
+    adminApiFunction.addToRolePolicy(bedrockPolicy);
 
     const schedulerInvokeRole = new iam.Role(this, "SchedulerInvokeLambdaRole", {
       assumedBy: new iam.ServicePrincipal("scheduler.amazonaws.com")
