@@ -98,9 +98,12 @@ export class BlogPipeline {
       title: draft.title
     };
 
-    const [imageBuffer] = await Promise.all([
-      this.deps.bedrock.generateFeaturedImage(draft.featuredImagePrompt)
-    ]);
+    const imageBuffer = await this.deps.bedrock.generateFeaturedImage(draft.featuredImagePrompt);
+
+    if (!imageBuffer) {
+      post.featuredImageKey = "";
+      post.featuredImageUrl = undefined;
+    }
 
     const markdown = renderMarkdown(
       post,
@@ -110,7 +113,9 @@ export class BlogPipeline {
     );
 
     await this.deps.storage.putText(contentKey, markdown, "text/markdown; charset=utf-8");
-    await this.deps.storage.putBinary(featuredImageKey, imageBuffer, "image/png");
+    if (imageBuffer) {
+      await this.deps.storage.putBinary(featuredImageKey, imageBuffer, "image/png");
+    }
     await this.deps.repository.savePublishedPost(post, options.runId);
     await this.refreshManifest();
 

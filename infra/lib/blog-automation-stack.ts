@@ -41,7 +41,7 @@ export class BlogAutomationStack extends Stack {
     const scheduleTimezone = envOrDefault("SCHEDULE_TIMEZONE", "UTC");
     const bedrockRegion = envOrDefault("BEDROCK_REGION", Stack.of(this).region);
     const textModelId = envOrDefault("TEXT_MODEL_ID", "us.amazon.nova-2-lite-v1:0");
-    const imageModelId = envOrDefault("IMAGE_MODEL_ID", "amazon.titan-image-generator-v2:0");
+    const imageModelId = process.env.IMAGE_MODEL_ID?.trim() ?? "";
     const bootstrapDelayMinutes = Number(envOrDefault("BOOTSTRAP_DELAY_MINUTES", "10"));
     const explicitBootstrapAt = optionalTrimmedEnv("BOOTSTRAP_AT");
     const bootstrapAt = explicitBootstrapAt ?? resolveBootstrapTimestamp(bootstrapDelayMinutes);
@@ -216,9 +216,13 @@ export class BlogAutomationStack extends Stack {
     metadataTable.grantReadData(publicApiFunction);
     metadataTable.grantReadWriteData(adminApiFunction);
 
+    const bedrockModelArns = [textModelId, imageModelId]
+      .filter(Boolean)
+      .map((id) => toModelArn(bedrockRegion, id));
+
     const bedrockPolicy = new iam.PolicyStatement({
       actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
-      resources: [toModelArn(bedrockRegion, textModelId), toModelArn(bedrockRegion, imageModelId)]
+      resources: bedrockModelArns
     });
 
     bootstrapFunction.addToRolePolicy(bedrockPolicy);

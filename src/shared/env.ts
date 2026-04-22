@@ -85,7 +85,7 @@ export function getConfig(): AppConfig {
     blogTableName: requireEnv("BLOG_TABLE_NAME"),
     bootstrapPostCount: numberEnv("BOOTSTRAP_POST_COUNT", 10),
     imageHeight: numberEnv("IMAGE_HEIGHT", 768),
-    imageModelId: process.env.IMAGE_MODEL_ID ?? "amazon.titan-image-generator-v2:0",
+    imageModelId: process.env.IMAGE_MODEL_ID ?? "",
     imageWidth: numberEnv("IMAGE_WIDTH", 1408),
     manifestKey: process.env.MANIFEST_KEY ?? "published/posts-manifest.json",
     maxPublishedPosts: numberEnv("MAX_PUBLISHED_POSTS", 10),

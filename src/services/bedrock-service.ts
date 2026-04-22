@@ -121,7 +121,12 @@ export class BedrockService {
     }
   }
 
-  async generateFeaturedImage(prompt: string): Promise<Buffer> {
+  async generateFeaturedImage(prompt: string): Promise<Buffer | null> {
+    if (!this.config.imageModelId) {
+      logger.warn("No image model configured, skipping image generation");
+      return null;
+    }
+
     try {
       const response = await this.client.send(
         new InvokeModelCommand({
