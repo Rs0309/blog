@@ -40,7 +40,7 @@ export class BlogAutomationStack extends Stack {
 
     const scheduleTimezone = envOrDefault("SCHEDULE_TIMEZONE", "UTC");
     const bedrockRegion = envOrDefault("BEDROCK_REGION", Stack.of(this).region);
-    const textModelId = envOrDefault("TEXT_MODEL_ID", "amazon.nova-pro-v1:0");
+    const textModelId = envOrDefault("TEXT_MODEL_ID", "us.amazon.nova-2-lite-v1:0");
     const imageModelId = envOrDefault("IMAGE_MODEL_ID", "amazon.titan-image-generator-v2:0");
     const bootstrapDelayMinutes = Number(envOrDefault("BOOTSTRAP_DELAY_MINUTES", "10"));
     const explicitBootstrapAt = optionalTrimmedEnv("BOOTSTRAP_AT");

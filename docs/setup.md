@@ -4,7 +4,7 @@
 
 - An AWS account in a region where your chosen Bedrock text and image models are available.
 - Amazon Bedrock model access enabled for:
-  - `amazon.nova-pro-v1:0` for text
+  - `us.amazon.nova-2-lite-v1:0` for text
   - `amazon.titan-image-generator-v2:0` for images
 - A GitHub repository containing this project.
 - An IAM user or role whose access key and secret key will be stored in GitHub Secrets.
@@ -47,7 +47,7 @@ Create these repository variables:
 - `BLOG_CATEGORY_THEMES`
   Example: `Cloud Computing, Serverless, DevOps Automation, AWS Cost Optimization, Platform Engineering`
 - `TEXT_MODEL_ID`
-  Example: `amazon.nova-pro-v1:0`
+  Example: `us.amazon.nova-2-lite-v1:0`
 - `IMAGE_MODEL_ID`
   Example: `amazon.titan-image-generator-v2:0`
 - `SITE_BASE_URL`

@@ -76,85 +76,95 @@ export class BedrockService {
   ) {}
 
   async generateBlogDraft(input: GenerateDraftInput): Promise<GeneratedBlogDraft> {
-    const command = new ConverseCommand({
-      modelId: this.config.textModelId,
-      system: [{ text: buildBlogSystemPrompt() }],
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              text: buildBlogUserPrompt({
-                articleOrdinal: input.articleOrdinal,
-                blogAuthorName: this.config.blogAuthorName,
-                blogBrandName: this.config.blogBrandName,
-                blogTone: this.config.blogTone,
-                dateKey: input.dateKey,
-                existingSlugs: input.existingSlugs.slice(0, 20),
-                existingTitles: input.existingTitles.slice(0, 20),
-                themes: input.themes
-              })
-            }
-          ]
+    try {
+      const command = new ConverseCommand({
+        modelId: this.config.textModelId,
+        system: [{ text: buildBlogSystemPrompt() }],
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                text: buildBlogUserPrompt({
+                  articleOrdinal: input.articleOrdinal,
+                  blogAuthorName: this.config.blogAuthorName,
+                  blogBrandName: this.config.blogBrandName,
+                  blogTone: this.config.blogTone,
+                  dateKey: input.dateKey,
+                  existingSlugs: input.existingSlugs.slice(0, 20),
+                  existingTitles: input.existingTitles.slice(0, 20),
+                  themes: input.themes
+                })
+              }
+            ]
+          }
+        ],
+        inferenceConfig: {
+          maxTokens: 6000,
+          temperature: 0.8,
+          topP: 0.9
         }
-      ],
-      inferenceConfig: {
-        maxTokens: 6000,
-        temperature: 0.8,
-        topP: 0.9
-      }
-    });
+      });
 
-    const response = await this.client.send(command);
-    const rawText = extractTextContent(response);
-    logger.info("Received Bedrock blog draft response", {
-      modelId: this.config.textModelId,
-      preview: rawText.slice(0, 180)
-    });
+      const response = await this.client.send(command);
+      const rawText = extractTextContent(response);
+      logger.info("Received Bedrock blog draft response", {
+        modelId: this.config.textModelId,
+        preview: rawText.slice(0, 180)
+      });
 
-    const parsed = JSON.parse(stripCodeFences(rawText)) as Record<string, unknown>;
-    return validateDraft(parsed);
+      const parsed = JSON.parse(stripCodeFences(rawText)) as Record<string, unknown>;
+      return validateDraft(parsed);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Text generation failed for model ${this.config.textModelId}: ${message}`);
+    }
   }
 
   async generateFeaturedImage(prompt: string): Promise<Buffer> {
-    const response = await this.client.send(
-      new InvokeModelCommand({
-        modelId: this.config.imageModelId,
-        contentType: "application/json",
-        accept: "application/json",
-        body: JSON.stringify({
-          taskType: "TEXT_IMAGE",
-          textToImageParams: {
-            text: prompt,
-            negativeText: "watermark, text, logo, signature, blurry, low quality, distorted, overexposed, duplicate subjects"
-          },
-          imageGenerationConfig: {
-            numberOfImages: 1,
-            width: this.config.imageWidth,
-            height: this.config.imageHeight,
-            cfgScale: 8,
-            seed: Math.floor(Math.random() * 1_000_000)
-          }
+    try {
+      const response = await this.client.send(
+        new InvokeModelCommand({
+          modelId: this.config.imageModelId,
+          contentType: "application/json",
+          accept: "application/json",
+          body: JSON.stringify({
+            taskType: "TEXT_IMAGE",
+            textToImageParams: {
+              text: prompt,
+              negativeText: "watermark, text, logo, signature, blurry, low quality, distorted, overexposed, duplicate subjects"
+            },
+            imageGenerationConfig: {
+              numberOfImages: 1,
+              width: this.config.imageWidth,
+              height: this.config.imageHeight,
+              cfgScale: 8,
+              seed: Math.floor(Math.random() * 1_000_000)
+            }
+          })
         })
-      })
-    );
+      );
 
-    const body = JSON.parse(new TextDecoder().decode(response.body)) as {
-      error?: string;
-      images?: string[];
-    };
+      const body = JSON.parse(new TextDecoder().decode(response.body)) as {
+        error?: string;
+        images?: string[];
+      };
 
-    if (!body.images || body.images.length === 0) {
-      throw new Error(body.error ?? "Bedrock did not return an image");
+      if (!body.images || body.images.length === 0) {
+        throw new Error(body.error ?? "Bedrock did not return an image");
+      }
+
+      if (body.error) {
+        logger.warn("Bedrock image generation returned a moderation warning", {
+          modelId: this.config.imageModelId,
+          error: body.error
+        });
+      }
+
+      return Buffer.from(body.images[0], "base64");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Image generation failed for model ${this.config.imageModelId}: ${message}`);
     }
-
-    if (body.error) {
-      logger.warn("Bedrock image generation returned a moderation warning", {
-        modelId: this.config.imageModelId,
-        error: body.error
-      });
-    }
-
-    return Buffer.from(body.images[0], "base64");
   }
 }

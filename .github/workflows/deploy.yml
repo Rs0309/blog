@@ -27,7 +27,7 @@ jobs:
       BLOG_AUTHOR_NAME: ${{ vars.BLOG_AUTHOR_NAME || 'Editorial Team' }}
       BLOG_TONE: ${{ vars.BLOG_TONE || 'Confident, practical, senior-engineer friendly' }}
       BLOG_CATEGORY_THEMES: ${{ vars.BLOG_CATEGORY_THEMES || 'Cloud Computing, Serverless, DevOps Automation, AWS Cost Optimization, Platform Engineering' }}
-      TEXT_MODEL_ID: amazon.nova-pro-v1:0
+      TEXT_MODEL_ID: us.amazon.nova-2-lite-v1:0
       IMAGE_MODEL_ID: amazon.titan-image-generator-v2:0
       SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
       PUBLIC_ASSET_BASE_URL: ${{ vars.PUBLIC_ASSET_BASE_URL }}

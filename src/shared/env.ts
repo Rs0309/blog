@@ -94,7 +94,7 @@ export function getConfig(): AppConfig {
     scheduleTimezone: process.env.SCHEDULE_TIMEZONE ?? "UTC",
     siteBaseUrl: optionalEnv("SITE_BASE_URL"),
     statusIndexName: process.env.STATUS_INDEX_NAME ?? "status-index",
-    textModelId: process.env.TEXT_MODEL_ID ?? "amazon.nova-pro-v1:0"
+    textModelId: process.env.TEXT_MODEL_ID ?? "us.amazon.nova-2-lite-v1:0"
   };
 
   return cachedConfig;
