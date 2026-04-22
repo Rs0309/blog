@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc --noEmit",
     "build:test": "tsc --module commonjs --target ES2022 --rootDir src --outDir dist-test src/shared/slug.ts src/services/manifest.ts src/types/blog.ts",
-    "test": "npm run build:test && node --test tests",
+    "test": "npm run build:test && node --test tests/slug.test.js tests/manifest.test.js",
     "synth": "cdk synth",
     "deploy": "cdk deploy --require-approval never"
   },
