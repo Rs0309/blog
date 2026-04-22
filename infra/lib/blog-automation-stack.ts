@@ -40,8 +40,8 @@ export class BlogAutomationStack extends Stack {
 
     const scheduleTimezone = envOrDefault("SCHEDULE_TIMEZONE", "UTC");
     const bedrockRegion = envOrDefault("BEDROCK_REGION", Stack.of(this).region);
-    const textModelId = envOrDefault("TEXT_MODEL_ID", "amazon.nova-lite-v1:0");
-    const imageModelId = envOrDefault("IMAGE_MODEL_ID", "amazon.nova-canvas-v1:0");
+    const textModelId = envOrDefault("TEXT_MODEL_ID", "amazon.nova-pro-v1:0");
+    const imageModelId = envOrDefault("IMAGE_MODEL_ID", "amazon.titan-image-generator-v2:0");
     const bootstrapDelayMinutes = Number(envOrDefault("BOOTSTRAP_DELAY_MINUTES", "10"));
     const explicitBootstrapAt = optionalTrimmedEnv("BOOTSTRAP_AT");
     const bootstrapAt = explicitBootstrapAt ?? resolveBootstrapTimestamp(bootstrapDelayMinutes);
@@ -125,8 +125,8 @@ export class BlogAutomationStack extends Stack {
       PUBLISHED_PREFIX: envOrDefault("PUBLISHED_PREFIX", "published"),
       ARCHIVE_PREFIX: envOrDefault("ARCHIVE_PREFIX", "archive"),
       MANIFEST_KEY: envOrDefault("MANIFEST_KEY", "published/posts-manifest.json"),
-      IMAGE_WIDTH: envOrDefault("IMAGE_WIDTH", "1536"),
-      IMAGE_HEIGHT: envOrDefault("IMAGE_HEIGHT", "864"),
+      IMAGE_WIDTH: envOrDefault("IMAGE_WIDTH", "1408"),
+      IMAGE_HEIGHT: envOrDefault("IMAGE_HEIGHT", "768"),
       SCHEDULE_TIMEZONE: scheduleTimezone
     };
 

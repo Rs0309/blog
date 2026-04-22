@@ -84,9 +84,9 @@ export function getConfig(): AppConfig {
     blogBucketName: requireEnv("BLOG_BUCKET_NAME"),
     blogTableName: requireEnv("BLOG_TABLE_NAME"),
     bootstrapPostCount: numberEnv("BOOTSTRAP_POST_COUNT", 10),
-    imageHeight: numberEnv("IMAGE_HEIGHT", 864),
-    imageModelId: process.env.IMAGE_MODEL_ID ?? "amazon.nova-canvas-v1:0",
-    imageWidth: numberEnv("IMAGE_WIDTH", 1536),
+    imageHeight: numberEnv("IMAGE_HEIGHT", 768),
+    imageModelId: process.env.IMAGE_MODEL_ID ?? "amazon.titan-image-generator-v2:0",
+    imageWidth: numberEnv("IMAGE_WIDTH", 1408),
     manifestKey: process.env.MANIFEST_KEY ?? "published/posts-manifest.json",
     maxPublishedPosts: numberEnv("MAX_PUBLISHED_POSTS", 10),
     publicAssetBaseUrl: optionalEnv("PUBLIC_ASSET_BASE_URL"),
@@ -94,7 +94,7 @@ export function getConfig(): AppConfig {
     scheduleTimezone: process.env.SCHEDULE_TIMEZONE ?? "UTC",
     siteBaseUrl: optionalEnv("SITE_BASE_URL"),
     statusIndexName: process.env.STATUS_INDEX_NAME ?? "status-index",
-    textModelId: process.env.TEXT_MODEL_ID ?? "amazon.nova-lite-v1:0"
+    textModelId: process.env.TEXT_MODEL_ID ?? "amazon.nova-pro-v1:0"
   };
 
   return cachedConfig;

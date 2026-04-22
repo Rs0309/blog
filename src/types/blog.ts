@@ -36,6 +36,12 @@ export interface BlogPostRecord {
 export interface BootstrapState {
   completed: boolean;
   completedAt?: string;
+  createdSlugs?: string[];
+  failedPosts?: Array<{
+    articleOrdinal: number;
+    error: string;
+    index: number;
+  }>;
   lastAttemptAt: string;
   targetCount: number;
 }
