@@ -2,12 +2,19 @@
 
 AWS-native automated blog generation pipeline built with Node.js, AWS CDK, Lambda, EventBridge Scheduler, S3, DynamoDB, Bedrock, and GitHub Actions.
 
+## � Blog Data Not Generating?
+
+**👉 [Read FIX_BLOG_NOW.md](FIX_BLOG_NOW.md)** - 90 seconds to fix (most likely: enable Bedrock model access)
+
+Alternatively: **[START_HERE.md](START_HERE.md)** - More detailed guide
+
 ## What It Does
 
 - On Day 1, schedules and generates 10 initial blog posts automatically.
 - Every following day, generates 1 fresh post and archives 1 older published post.
 - Creates a matching featured image for every blog post with Amazon Bedrock image generation.
-- Stores markdown content and images in S3, and stores blog metadata plus workflow state in DynamoDB.
+- Stores generated images in S3, stores the full blog content plus image URLs in DynamoDB, and keeps a markdown copy plus manifest in S3.
+- Exposes published posts through a public read API and serves blog assets through a public CloudFront URL.
 - Deploys through GitHub Actions using `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` stored in GitHub Secrets.
 
 ## Architecture
@@ -72,11 +79,15 @@ flowchart LR
 - `S3 Bucket`
   Stores published markdown, archived markdown, featured images, and a published-post manifest JSON.
 - `DynamoDB Table`
-  Stores blog metadata, bootstrap state, and daily rotation state.
+  Stores full blog content, image locations, bootstrap state, and daily rotation state.
 - `Bootstrap Lambda`
   Generates the initial Day 1 inventory.
 - `Daily Rotation Lambda`
   Generates 1 post and archives 1 old post each day.
+- `Public Posts API Lambda URL`
+  Exposes published posts at `/posts` and `/posts/{slug}`.
+- `CloudFront Distribution`
+  Serves the generated images and other published S3 assets publicly.
 - `EventBridge Scheduler`
   Triggers the one-time bootstrap flow and the recurring daily rotation flow.
 - `IAM Roles`
@@ -136,6 +147,6 @@ Follow the detailed guide for:
 
 ## Notes
 
-- The S3 bucket is private by default. If you want public blog/media URLs, front it with CloudFront and set `PUBLIC_ASSET_BASE_URL`.
+- The stack now creates CloudFront in front of the S3 bucket by default so generated image URLs are publicly fetchable while the bucket stays private.
 - The bootstrap schedule defaults to deployment time plus 10 minutes unless `BOOTSTRAP_AT` is provided.
 - The daily handler archives by moving the oldest published post from the `published/` prefix to the `archive/` prefix and updating its metadata status to `archived`.

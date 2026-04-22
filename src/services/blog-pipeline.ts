@@ -26,8 +26,8 @@ function escapeYaml(value: string): string {
 }
 
 function renderMarkdown(post: BlogPostRecord, bodyMarkdown: string, siteBaseUrl?: string, publicAssetBaseUrl?: string): string {
-  const canonicalUrl = buildCanonicalUrl(siteBaseUrl, post.slug);
-  const featuredImageUrl = buildPublicAssetUrl(publicAssetBaseUrl, post.featuredImageKey);
+  const canonicalUrl = post.canonicalUrl ?? buildCanonicalUrl(siteBaseUrl, post.slug);
+  const featuredImageUrl = post.featuredImageUrl ?? buildPublicAssetUrl(publicAssetBaseUrl, post.featuredImageKey);
 
   const frontmatter = [
     "---",
@@ -75,14 +75,19 @@ export class BlogPipeline {
     const publishedAt = nowIso();
     const contentKey = `${this.deps.config.publishedPrefix}/posts/${slug}/index.md`;
     const featuredImageKey = `${this.deps.config.publishedPrefix}/images/${slug}/featured.png`;
+    const canonicalUrl = buildCanonicalUrl(this.deps.config.siteBaseUrl, slug);
+    const featuredImageUrl = buildPublicAssetUrl(this.deps.config.publicAssetBaseUrl, featuredImageKey);
 
     const post: BlogPostRecord = {
       authorName: this.deps.config.blogAuthorName,
+      canonicalUrl,
+      contentMarkdown: draft.contentMarkdown,
       contentKey,
       createdAt: publishedAt,
       excerpt: draft.excerpt,
       featuredImageAlt: draft.featuredImageAlt,
       featuredImageKey,
+      featuredImageUrl,
       publishedAt,
       seoDescription: draft.seoDescription,
       seoTitle: draft.seoTitle,
@@ -99,7 +104,7 @@ export class BlogPipeline {
 
     const markdown = renderMarkdown(
       post,
-      draft.contentMarkdown,
+      post.contentMarkdown,
       this.deps.config.siteBaseUrl,
       this.deps.config.publicAssetBaseUrl
     );

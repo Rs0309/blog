@@ -32,8 +32,8 @@ export function serializeManifest(posts: BlogPostRecord[], generatedAt: string, 
         seoDescription: post.seoDescription,
         contentKey: post.contentKey,
         featuredImageKey: post.featuredImageKey,
-        featuredImageUrl: buildPublicAssetUrl(publicAssetBaseUrl, post.featuredImageKey),
-        canonicalUrl: buildCanonicalUrl(siteBaseUrl, post.slug)
+        featuredImageUrl: post.featuredImageUrl ?? buildPublicAssetUrl(publicAssetBaseUrl, post.featuredImageKey),
+        canonicalUrl: post.canonicalUrl ?? buildCanonicalUrl(siteBaseUrl, post.slug)
       }))
     },
     null,

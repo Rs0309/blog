@@ -53,7 +53,7 @@ Create these repository variables:
 - `SITE_BASE_URL`
   Optional. Example: `https://example.com/blog`
 - `PUBLIC_ASSET_BASE_URL`
-  Optional. Example: `https://cdn.example.com`
+  Optional override. Example: `https://cdn.example.com`
 
 ## 5. IAM Permissions
 
@@ -163,7 +163,7 @@ If you want the bootstrap run at a precise wall-clock time, set:
 
 ## 9. Accessing Generated Content
 
-Generated content lands in S3:
+Generated images and published asset files land in S3:
 
 - `published/posts/<slug>/index.md`
 - `published/images/<slug>/featured.png`
@@ -171,7 +171,14 @@ Generated content lands in S3:
 - `archive/images/<slug>/featured.png`
 - `published/posts-manifest.json`
 
-Metadata is stored in DynamoDB and can be used by your frontend, API, or static site build job.
+Full blog records, including the generated markdown body and public image URL, are stored in DynamoDB.
+
+After deployment, use the stack outputs:
+
+- `PublicPostsApiUrl`
+  Public endpoint base. Fetch `GET <url>posts` for the list and `GET <url>posts/<slug>` for a post.
+- `BlogAssetsDistributionUrl`
+  Public CloudFront base URL for generated images and published assets.
 
 ## 10. Operational Recommendations
 

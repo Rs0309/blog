@@ -15,11 +15,14 @@ export interface GeneratedBlogDraft {
 export interface BlogPostRecord {
   archivedAt?: string;
   authorName: string;
+  canonicalUrl?: string;
+  contentMarkdown: string;
   contentKey: string;
   createdAt: string;
   excerpt: string;
   featuredImageAlt: string;
   featuredImageKey: string;
+  featuredImageUrl?: string;
   publishedAt: string;
   seoDescription: string;
   seoTitle: string;

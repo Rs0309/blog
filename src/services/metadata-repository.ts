@@ -28,11 +28,14 @@ function fromPostItem(item: Record<string, unknown>): BlogPostRecord {
   return {
     archivedAt: item.archivedAt ? String(item.archivedAt) : undefined,
     authorName: String(item.authorName),
+    canonicalUrl: item.canonicalUrl ? String(item.canonicalUrl) : undefined,
+    contentMarkdown: String(item.contentMarkdown ?? ""),
     contentKey: String(item.contentKey),
     createdAt: String(item.createdAt),
     excerpt: String(item.excerpt),
     featuredImageAlt: String(item.featuredImageAlt),
     featuredImageKey: String(item.featuredImageKey),
+    featuredImageUrl: item.featuredImageUrl ? String(item.featuredImageUrl) : undefined,
     publishedAt: String(item.publishedAt),
     seoDescription: String(item.seoDescription),
     seoTitle: String(item.seoTitle),
@@ -135,6 +138,24 @@ export class MetadataRepository {
     return items.find((item) => !excluded.has(item.slug));
   }
 
+  async getPostBySlug(slug: string): Promise<BlogPostRecord | undefined> {
+    const response = await this.client.send(
+      new GetCommand({
+        TableName: this.tableName,
+        Key: {
+          pk: `POST#${slug}`,
+          sk: "META"
+        }
+      })
+    );
+
+    if (!response.Item) {
+      return undefined;
+    }
+
+    return fromPostItem(response.Item as Record<string, unknown>);
+  }
+
   async findRunPost(runId: string): Promise<BlogPostRecord | undefined> {
     const response = await this.client.send(
       new QueryCommand({
@@ -156,6 +177,7 @@ export class MetadataRepository {
     return {
       archivedAt: undefined,
       authorName: "",
+      contentMarkdown: "",
       contentKey: "",
       createdAt: String(item.createdAt ?? ""),
       excerpt: "",

@@ -1,6 +1,8 @@
 import * as path from "node:path";
 import { Aws, CfnOutput, Duration, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
+import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
@@ -54,6 +56,18 @@ export class BlogAutomationStack extends Stack {
       autoDeleteObjects: false
     });
 
+    const blogAssetsDistribution = new cloudfront.Distribution(this, "BlogAssetsDistribution", {
+      comment: "Public CDN for generated blog images and published assets",
+      defaultBehavior: {
+        origin: origins.S3BucketOrigin.withOriginAccessControl(blogBucket),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED
+      },
+      defaultRootObject: "published/posts-manifest.json"
+    });
+
+    const publicAssetBaseUrl = optionalTrimmedEnv("PUBLIC_ASSET_BASE_URL") ?? `https://${blogAssetsDistribution.domainName}`;
+
     const metadataTable = new dynamodb.Table(this, "BlogMetadataTable", {
       partitionKey: { name: "pk", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "sk", type: dynamodb.AttributeType.STRING },
@@ -105,7 +119,7 @@ export class BlogAutomationStack extends Stack {
         "Cloud Computing, Serverless, DevOps Automation, AWS Cost Optimization, Platform Engineering"
       ),
       SITE_BASE_URL: process.env.SITE_BASE_URL ?? "",
-      PUBLIC_ASSET_BASE_URL: process.env.PUBLIC_ASSET_BASE_URL ?? "",
+      PUBLIC_ASSET_BASE_URL: publicAssetBaseUrl,
       BOOTSTRAP_POST_COUNT: envOrDefault("BOOTSTRAP_POST_COUNT", "10"),
       MAX_PUBLISHED_POSTS: envOrDefault("MAX_PUBLISHED_POSTS", "10"),
       PUBLISHED_PREFIX: envOrDefault("PUBLISHED_PREFIX", "published"),
@@ -146,10 +160,35 @@ export class BlogAutomationStack extends Stack {
       }
     });
 
+    const publicApiFunction = new lambdaNodejs.NodejsFunction(this, "PublicPostsApiFunction", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(__dirname, "../../src/handlers/public-api.ts"),
+      handler: "handler",
+      timeout: Duration.seconds(30),
+      memorySize: 512,
+      environment: commonEnvironment,
+      bundling: {
+        target: "node20",
+        format: lambdaNodejs.OutputFormat.CJS,
+        minify: true,
+        sourceMap: true
+      }
+    });
+
+    const publicApiUrl = publicApiFunction.addFunctionUrl({
+      authType: lambda.FunctionUrlAuthType.NONE,
+      cors: {
+        allowedOrigins: ["*"],
+        allowedMethods: [lambda.HttpMethod.GET],
+        allowedHeaders: ["content-type"]
+      }
+    });
+
     blogBucket.grantReadWrite(bootstrapFunction);
     blogBucket.grantReadWrite(dailyRotationFunction);
     metadataTable.grantReadWriteData(bootstrapFunction);
     metadataTable.grantReadWriteData(dailyRotationFunction);
+    metadataTable.grantReadData(publicApiFunction);
 
     const bedrockPolicy = new iam.PolicyStatement({
       actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
@@ -218,9 +257,11 @@ export class BlogAutomationStack extends Stack {
     });
 
     new CfnOutput(this, "BlogAssetsBucketName", { value: blogBucket.bucketName });
+    new CfnOutput(this, "BlogAssetsDistributionUrl", { value: publicAssetBaseUrl });
     new CfnOutput(this, "BlogMetadataTableName", { value: metadataTable.tableName });
     new CfnOutput(this, "BootstrapFunctionName", { value: bootstrapFunction.functionName });
     new CfnOutput(this, "DailyRotationFunctionName", { value: dailyRotationFunction.functionName });
+    new CfnOutput(this, "PublicPostsApiUrl", { value: publicApiUrl.url });
     new CfnOutput(this, "BedrockRegion", { value: bedrockRegion });
   }
 }

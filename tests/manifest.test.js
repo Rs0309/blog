@@ -16,11 +16,14 @@ test("serializes the published manifest shape", () => {
       [
         {
           authorName: "Editorial Team",
+          canonicalUrl: "https://example.com/blog/my-post",
+          contentMarkdown: "## Body",
           contentKey: "published/posts/my-post/index.md",
           createdAt: "2026-04-21T00:00:00.000Z",
           excerpt: "A concise summary.",
           featuredImageAlt: "Hero image",
           featuredImageKey: "published/images/my-post/featured.png",
+          featuredImageUrl: "https://cdn.example.com/published/images/my-post/featured.png",
           publishedAt: "2026-04-21T00:00:00.000Z",
           seoDescription: "SEO description",
           seoTitle: "SEO title",
