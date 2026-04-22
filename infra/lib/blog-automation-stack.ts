@@ -175,6 +175,21 @@ export class BlogAutomationStack extends Stack {
       }
     });
 
+    const adminApiFunction = new lambdaNodejs.NodejsFunction(this, "AdminBlogApiFunction", {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(__dirname, "../../src/handlers/admin-api.ts"),
+      handler: "handler",
+      timeout: Duration.minutes(15),
+      memorySize: 1536,
+      environment: commonEnvironment,
+      bundling: {
+        target: "node20",
+        format: lambdaNodejs.OutputFormat.CJS,
+        minify: true,
+        sourceMap: true
+      }
+    });
+
     const publicApiUrl = publicApiFunction.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
       cors: {
@@ -184,11 +199,22 @@ export class BlogAutomationStack extends Stack {
       }
     });
 
+    const adminApiUrl = adminApiFunction.addFunctionUrl({
+      authType: lambda.FunctionUrlAuthType.NONE,
+      cors: {
+        allowedOrigins: ["*"],
+        allowedMethods: [lambda.HttpMethod.POST],
+        allowedHeaders: ["content-type"]
+      }
+    });
+
     blogBucket.grantReadWrite(bootstrapFunction);
     blogBucket.grantReadWrite(dailyRotationFunction);
+    blogBucket.grantReadWrite(adminApiFunction);
     metadataTable.grantReadWriteData(bootstrapFunction);
     metadataTable.grantReadWriteData(dailyRotationFunction);
     metadataTable.grantReadData(publicApiFunction);
+    metadataTable.grantReadWriteData(adminApiFunction);
 
     const bedrockPolicy = new iam.PolicyStatement({
       actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
@@ -262,6 +288,7 @@ export class BlogAutomationStack extends Stack {
     new CfnOutput(this, "BootstrapFunctionName", { value: bootstrapFunction.functionName });
     new CfnOutput(this, "DailyRotationFunctionName", { value: dailyRotationFunction.functionName });
     new CfnOutput(this, "PublicPostsApiUrl", { value: publicApiUrl.url });
+    new CfnOutput(this, "AdminBlogApiUrl", { value: adminApiUrl.url });
     new CfnOutput(this, "BedrockRegion", { value: bedrockRegion });
   }
 }

@@ -177,6 +177,8 @@ After deployment, use the stack outputs:
 
 - `PublicPostsApiUrl`
   Public endpoint base. Fetch `GET <url>posts` for the list and `GET <url>posts/<slug>` for a post.
+- `AdminBlogApiUrl`
+  Admin endpoint base. Call `POST <url>bootstrap` to generate the initial set and `POST <url>posts` to generate one post manually.
 - `BlogAssetsDistributionUrl`
   Public CloudFront base URL for generated images and published assets.
 

@@ -15,6 +15,7 @@ Alternatively: **[START_HERE.md](START_HERE.md)** - More detailed guide
 - Creates a matching featured image for every blog post with Amazon Bedrock image generation.
 - Stores generated images in S3, stores the full blog content plus image URLs in DynamoDB, and keeps a markdown copy plus manifest in S3.
 - Exposes published posts through a public read API and serves blog assets through a public CloudFront URL.
+- Exposes an admin trigger API for manual bootstrap and manual post creation.
 - Deploys through GitHub Actions using `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` stored in GitHub Secrets.
 
 ## Architecture
@@ -86,6 +87,8 @@ flowchart LR
   Generates 1 post and archives 1 old post each day.
 - `Public Posts API Lambda URL`
   Exposes published posts at `/posts` and `/posts/{slug}`.
+- `Admin Blog API Lambda URL`
+  Exposes POST endpoints for `/bootstrap` and `/posts`.
 - `CloudFront Distribution`
   Serves the generated images and other published S3 assets publicly.
 - `EventBridge Scheduler`
