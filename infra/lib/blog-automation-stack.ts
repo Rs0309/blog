@@ -31,6 +31,12 @@ function toModelArn(region: string, modelIdOrArn: string): string {
     return modelIdOrArn;
   }
 
+  // Cross-region inference profiles are prefixed with a region abbreviation (us., eu., ap.)
+  // They require an account-scoped ARN under inference-profile/, not foundation-model/
+  if (/^(us|eu|ap)\./.test(modelIdOrArn)) {
+    return `arn:${Aws.PARTITION}:bedrock:${region}:${Aws.ACCOUNT_ID}:inference-profile/${modelIdOrArn}`;
+  }
+
   return `arn:${Aws.PARTITION}:bedrock:${region}::foundation-model/${modelIdOrArn}`;
 }
 
@@ -221,7 +227,7 @@ export class BlogAutomationStack extends Stack {
       .map((id) => toModelArn(bedrockRegion, id));
 
     const bedrockPolicy = new iam.PolicyStatement({
-      actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream"],
+      actions: ["bedrock:InvokeModel", "bedrock:InvokeModelWithResponseStream", "bedrock:GetInferenceProfile"],
       resources: bedrockModelArns
     });
 
