@@ -71,16 +71,19 @@ export function getConfig(): AppConfig {
   cachedConfig = {
     archivePrefix: process.env.ARCHIVE_PREFIX ?? "archive",
     bedrockRegion: process.env.BEDROCK_REGION ?? process.env.AWS_REGION ?? "us-east-1",
-    blogAuthorName: process.env.BLOG_AUTHOR_NAME ?? "Editorial Team",
-    blogBrandName: process.env.BLOG_BRAND_NAME ?? "Cloud Scale Daily",
+    blogAuthorName: process.env.BLOG_AUTHOR_NAME ?? "DCA Team",
+    blogBrandName: process.env.BLOG_BRAND_NAME ?? "Digital Center Agent",
     blogThemes: csvEnv("BLOG_CATEGORY_THEMES", [
-      "Cloud Computing",
-      "Serverless",
-      "DevOps Automation",
-      "AWS Cost Optimization",
-      "Platform Engineering"
+      "How Automation is Changing Business Growth",
+      "Turning Conversations into Customers",
+      "Why CRM Systems Are Important for Small Businesses",
+      "What Are Digital Agents and Why Businesses Need Them",
+      "Omnichannel Marketing Explained (Simple Guide)",
+      "How Fast Response Time Increases Sales",
+      "Lead Generation vs Lead Conversion",
+      "How Businesses Can Scale Without Hiring More Staff"
     ]),
-    blogTone: process.env.BLOG_TONE ?? "Confident, practical, senior-engineer friendly",
+    blogTone: process.env.BLOG_TONE ?? "Clear, friendly, and practical — written for small business owners, not IT professionals",
     blogBucketName: requireEnv("BLOG_BUCKET_NAME"),
     blogTableName: requireEnv("BLOG_TABLE_NAME"),
     bootstrapPostCount: numberEnv("BOOTSTRAP_POST_COUNT", 10),

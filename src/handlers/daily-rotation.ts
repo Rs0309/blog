@@ -79,23 +79,15 @@ export const handler: Handler = async (event) => {
 
     if (!state.archiveCompleted) {
       try {
-        logger.info("Checking for existing archive", { runId });
-        const existingArchive = await repository.findRunArchive(runId);
-        if (existingArchive) {
-          state.archivedSlug = existingArchive.slug;
-          state.archiveCompleted = true;
-          logger.info("Found existing archive, skipping", { slug: existingArchive.slug });
-        } else {
-          logger.info("Archiving oldest published post", { runId, excludeSlugs: state.generatedSlug ? [state.generatedSlug] : [] });
-          const archived = await pipeline.archiveOldestPublishedPost(runId, state.generatedSlug ? [state.generatedSlug] : []);
-          state.archivedSlug = archived?.slug ?? null;
-          state.archiveCompleted = true;
-          logger.info("Archive completed", { archivedSlug: state.archivedSlug });
-        }
+        logger.info("Deleting oldest published post", { excludeSlugs: state.generatedSlug ? [state.generatedSlug] : [] });
+        const deleted = await pipeline.deleteOldestPublishedPost(state.generatedSlug ? [state.generatedSlug] : []);
+        state.archivedSlug = deleted?.slug ?? null;
+        state.archiveCompleted = true;
+        logger.info("Deletion completed", { deletedSlug: state.archivedSlug });
 
         await repository.putState("daily-rotation", { ...state });
       } catch (archError) {
-        logger.error("Failed during archive phase", {
+        logger.error("Failed during deletion phase", {
           error: archError instanceof Error ? archError.message : String(archError),
           stack: archError instanceof Error ? archError.stack : undefined
         });

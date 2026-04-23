@@ -57,7 +57,7 @@ export class BlogAutomationStack extends Stack {
     const bootstrapDelayMinutes = Number(envOrDefault("BOOTSTRAP_DELAY_MINUTES", "10"));
     const explicitBootstrapAt = optionalTrimmedEnv("BOOTSTRAP_AT");
     const bootstrapAt = explicitBootstrapAt ?? resolveBootstrapTimestamp(bootstrapDelayMinutes);
-    const dailyScheduleExpression = envOrDefault("DAILY_SCHEDULE_EXPRESSION", "cron(0 6 * * ? *)");
+    const dailyScheduleExpression = envOrDefault("DAILY_SCHEDULE_EXPRESSION", "cron(0 9 ? * MON,THU *)");
 
     const blogBucket = new s3.Bucket(this, "BlogAssetsBucket", {
       versioned: true,
@@ -123,12 +123,12 @@ export class BlogAutomationStack extends Stack {
       BEDROCK_REGION: bedrockRegion,
       TEXT_MODEL_ID: textModelId,
       IMAGE_MODEL_ID: imageModelId,
-      BLOG_BRAND_NAME: envOrDefault("BLOG_BRAND_NAME", "Cloud Scale Daily"),
-      BLOG_AUTHOR_NAME: envOrDefault("BLOG_AUTHOR_NAME", "Editorial Team"),
-      BLOG_TONE: envOrDefault("BLOG_TONE", "Confident, practical, senior-engineer friendly"),
+      BLOG_BRAND_NAME: envOrDefault("BLOG_BRAND_NAME", "Digital Center Agent"),
+      BLOG_AUTHOR_NAME: envOrDefault("BLOG_AUTHOR_NAME", "DCA Team"),
+      BLOG_TONE: envOrDefault("BLOG_TONE", "Clear, friendly, and practical — written for small business owners, not IT professionals"),
       BLOG_CATEGORY_THEMES: envOrDefault(
         "BLOG_CATEGORY_THEMES",
-        "Cloud Computing, Serverless, DevOps Automation, AWS Cost Optimization, Platform Engineering"
+        "How Automation is Changing Business Growth,Turning Conversations into Customers,Why CRM Systems Are Important for Small Businesses,What Are Digital Agents and Why Businesses Need Them,Omnichannel Marketing Explained (Simple Guide),How Fast Response Time Increases Sales,Lead Generation vs Lead Conversion,How Businesses Can Scale Without Hiring More Staff"
       ),
       SITE_BASE_URL: process.env.SITE_BASE_URL ?? "",
       PUBLIC_ASSET_BASE_URL: publicAssetBaseUrl,
@@ -283,7 +283,7 @@ export class BlogAutomationStack extends Stack {
 
     new scheduler.CfnSchedule(this, "DailyRotationSchedule", {
       name: `${this.stackName}-daily-rotation`,
-      description: "Creates a new blog post each day and archives one older published post.",
+      description: "Creates a new blog post every Monday and Thursday and deletes the oldest published post.",
       flexibleTimeWindow: {
         mode: "OFF"
       },

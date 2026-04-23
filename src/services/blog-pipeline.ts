@@ -160,6 +160,29 @@ export class BlogPipeline {
     return archivedRecord;
   }
 
+  async deleteOldestPublishedPost(excludeSlugs: string[] = []): Promise<BlogPostRecord | undefined> {
+    const oldest = await this.deps.repository.getOldestPublishedPost(excludeSlugs);
+    if (!oldest) {
+      return undefined;
+    }
+
+    if (oldest.contentKey) {
+      await this.deps.storage.deleteObject(oldest.contentKey);
+    }
+    if (oldest.featuredImageKey) {
+      await this.deps.storage.deleteObject(oldest.featuredImageKey);
+    }
+
+    await this.deps.repository.deletePost(oldest.slug);
+    await this.refreshManifest();
+
+    logger.info("Deleted oldest published blog post", {
+      slug: oldest.slug
+    });
+
+    return oldest;
+  }
+
   private async refreshManifest(): Promise<void> {
     const publishedPosts = await this.deps.repository.listPublishedPosts(100, true);
     const manifest = serializeManifest(

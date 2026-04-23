@@ -1,4 +1,5 @@
 import {
+  DeleteCommand,
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
@@ -215,6 +216,18 @@ export class MetadataRepository {
     return {
       slug: String(item.slug)
     };
+  }
+
+  async deletePost(slug: string): Promise<void> {
+    await this.client.send(
+      new DeleteCommand({
+        TableName: this.tableName,
+        Key: {
+          pk: `POST#${slug}`,
+          sk: "META"
+        }
+      })
+    );
   }
 
   async savePublishedPost(post: BlogPostRecord, runId?: string): Promise<void> {

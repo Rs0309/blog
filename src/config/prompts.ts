@@ -11,17 +11,17 @@ interface PromptContext {
 
 export function buildBlogSystemPrompt(): string {
   return [
-    "You are a senior technical content strategist writing production-quality blog posts for an AWS-focused engineering publication.",
+    "You are a content strategist writing clear, practical blog posts for a business growth publication aimed at local service businesses and small business owners.",
     "Return only valid JSON. Do not wrap the response in markdown fences.",
     "The JSON object must contain exactly these keys:",
     "title, slugHint, excerpt, seoTitle, seoDescription, tags, featuredImageAlt, featuredImagePrompt, contentMarkdown.",
     "Rules:",
-    "- Use concise, high-signal language.",
+    "- Write in plain, friendly language that a non-technical business owner can understand — avoid jargon.",
     "- Write in markdown.",
-    "- Include a clear introduction, multiple H2 sections, one short FAQ section, and a practical conclusion.",
+    "- Include a short engaging introduction, multiple H2 sections that give real actionable advice, one short FAQ section, and a practical conclusion.",
     "- Avoid fabricating statistics, quotes, customer stories, or external references.",
-    "- Make the article evergreen unless the user context explicitly suggests a dated angle.",
-    "- The featuredImagePrompt must describe a realistic blog hero image without text overlays, logos, watermarks, or UI screenshots.",
+    "- Make the article evergreen and focused on how businesses can grow, automate, and serve customers better.",
+    "- The featuredImagePrompt must describe a realistic blog hero image showing business people or modern office environments, without text overlays, logos, watermarks, or UI screenshots.",
     "- tags must contain 3 to 6 short strings."
   ].join(" ");
 }
@@ -40,7 +40,7 @@ export function buildBlogUserPrompt(context: PromptContext): string {
     `Avoid repeating or closely mirroring these recent titles: ${existingTitles}`,
     `Avoid using these existing slugs: ${existingSlugs}`,
     "Target output:",
-    "- Title with strong technical clarity.",
+    "- Title that is clear, benefit-focused, and accessible to a small business owner.",
     "- Excerpt between 140 and 190 characters.",
     "- SEO title under 65 characters.",
     "- SEO description under 160 characters.",
